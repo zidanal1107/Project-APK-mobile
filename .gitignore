@@ -1,0 +1,17 @@
+# Node.js / React Native / Express
+node_modules/
+.expo/
+dist/
+build/
+
+# Python AI
+venv/
+.venv/
+__pycache__/
+*.pt
+*.onnx
+
+# Environment & Database Lokal
+.env
+*.db
+*.sqlite
