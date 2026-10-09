@@ -114,7 +114,7 @@ export default function Settings() {
           onPress={() => {}}
         >
           <View style={styles.settingTextContainer}>
-            <Text style={styles.settingTitle}>About A Day In Campus</Text>
+            <Text style={styles.settingTitle}>About My Daily Campus</Text>
             <Text style={styles.settingDescription}>Version 1.0.0</Text>
           </View>
           <Text style={styles.arrow}>›</Text>
