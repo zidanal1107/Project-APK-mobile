@@ -3,7 +3,7 @@ from typing import Optional
 
 class ChatRequest(BaseModel):
     message: str
-    context: Optional[str] = ""  # Data jadwal/user yang dikirim oleh TS Backend
+    context: Optional[str] = ""
 
 class ChatResponse(BaseModel):
     reply: str

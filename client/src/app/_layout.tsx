@@ -22,7 +22,7 @@ export default function Layout() {
         headerTitleAlign: "left",
 
         // 1. Nama Aplikasi di paling kiri
-        headerTitle: () => <Text style={styles.appName}>A Day In Campus</Text>,
+        headerTitle: () => <Text style={styles.appName}>My Daily Campus</Text>,
         headerLeft: () => null,
 
         // 2. Nama Halaman tepat di sebelah kanan, berdampingan dengan Hamburger

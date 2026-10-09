@@ -4,7 +4,7 @@ from app.routers import chat
 
 app = FastAPI(
     title="A Day In Campus - AI Service",
-    description="Microservice AI untuk Chatbot (Gemini) & Computer Vision (YOLO11n)",
+    description="Microservice AI untuk Chatbot (Gemini)",
     version="1.0.0"
 )
 
@@ -18,8 +18,6 @@ app.add_middleware(
 
 # Register Routers
 app.include_router(chat.router)
-# app.include_router(vision.router)
-# app.include_router(intent.router)
 
 @app.get("/")
 def health_check():
