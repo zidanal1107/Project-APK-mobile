@@ -1,5 +1,7 @@
 import { Drawer, DrawerToggleButton } from "expo-router/drawer";
 import { StyleSheet, Text, View } from "react-native";
+import { initDatabase } from "@/services/scheduleService";
+import { initFinanceTable } from "@/services/financeService";
 
 // Pemetaan nama route ke Judul Halaman
 const PAGE_TITLES: Record<string, string> = {
@@ -7,11 +9,16 @@ const PAGE_TITLES: Record<string, string> = {
   schedule: "My Schedule",
   "add-schedule": "Add Schedule",
   chatbot: "Chatbot",
+  finance: "Finance",
   settings: "Setting",
   profile: "Profile",
 };
 
-export default function Layout() {
+export default async function Layout() {
+  // Inisialisasi database saat aplikasi dimulai
+  await initDatabase();
+  await initFinanceTable();
+
   return (
     <Drawer
       screenOptions={({ route }) => ({
@@ -46,6 +53,7 @@ export default function Layout() {
         options={{ drawerLabel: "Add Schedule" }}
       />
       <Drawer.Screen name="chatbot" options={{ drawerLabel: "Chatbot" }} />
+      <Drawer.Screen name="finance" options={{ drawerLabel: "Finance" }} />
       <Drawer.Screen name="profile" options={{ drawerLabel: "Profile" }} />
       <Drawer.Screen name="settings" options={{ drawerLabel: "Setting" }} />
     </Drawer>

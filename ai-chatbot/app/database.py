@@ -12,14 +12,31 @@ if not DATABASE_URL:
     raise ValueError("DATABASE_URL belum diatur di file .env")
 
 
+# Base untuk seluruh model SQLAlchemy
 class Base(DeclarativeBase):
     pass
 
 
-engine = create_engine(DATABASE_URL)
+# Koneksi database
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+)
 
+
+# Session database
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
+
+
+# Dependency untuk FastAPI
+def get_db():
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
