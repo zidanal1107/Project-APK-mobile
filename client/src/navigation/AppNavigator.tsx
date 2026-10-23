@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
@@ -22,8 +22,8 @@ export default function AppNavigator() {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E2E8F0',
-          height: Platform.OS === 'ios' ? 88 : 68,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          height: Platform.OS === 'ios' ? 88 : 72,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 12,
           paddingTop: 8,
           elevation: 12,
           shadowColor: '#1E3A8A',
@@ -48,13 +48,13 @@ export default function AppNavigator() {
           } else if (route.name === 'Finance') {
             iconName = focused ? 'wallet' : 'wallet-outline';
           } else if (route.name === 'Settings') {
-            iconName = focused ? 'person' : 'person-outline';
+            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return (
             <View
-              className={`px-4 py-1 rounded-full items-center justify-center ${
-                focused ? 'bg-blue-600 shadow-sm shadow-blue-500' : 'bg-transparent'
+              className={`w-12 h-7 rounded-full items-center justify-center ${
+                focused ? 'bg-blue-600' : 'bg-transparent'
               }`}
             >
               <Ionicons
@@ -71,7 +71,7 @@ export default function AppNavigator() {
       <Tab.Screen name="Schedule" component={ScheduleScreen} options={{ tabBarLabel: 'Jadwal' }} />
       <Tab.Screen name="Chatbot" component={ChatbotScreen} options={{ tabBarLabel: 'Asisten' }} />
       <Tab.Screen name="Finance" component={FinanceScreen} options={{ tabBarLabel: 'Keuangan' }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarLabel: 'Profil' }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarLabel: 'Setting' }} />
     </Tab.Navigator>
   );
 }
