@@ -3,9 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface ScheduleItem {
   id: string;
-  title: string;
-  time: string;
-  location: string;
+  name: string;
+  start: string;
+  end: string;
+  class: string;
+  dosen: string;
+  ruangan: string;
+  hari: string;
+  jamDibuat: string;
   type: 'akademik' | 'non-akademik';
 }
 
@@ -14,13 +19,14 @@ export interface FinanceItem {
   title: string;
   amount: number;
   type: 'pemasukan' | 'pengeluaran';
+  kategori: string; // <-- Atribut baru jenis/kategori transaksi
   date: string;
 }
 
 interface AppContextType {
   schedules: ScheduleItem[];
-  addSchedule: (item: Omit<ScheduleItem, 'id'>) => Promise<void>;
-  updateSchedule: (id: string, item: Omit<ScheduleItem, 'id'>) => Promise<void>;
+  addSchedule: (item: Omit<ScheduleItem, 'id' | 'jamDibuat'>) => Promise<void>;
+  updateSchedule: (id: string, item: Omit<ScheduleItem, 'id' | 'jamDibuat'>) => Promise<void>;
   deleteSchedule: (id: string) => Promise<void>;
   finances: FinanceItem[];
   addFinance: (item: Omit<FinanceItem, 'id'>) => Promise<void>;
@@ -51,15 +57,30 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // --- CRUD JADWAL ---
-  const addSchedule = async (item: Omit<ScheduleItem, 'id'>) => {
-    const newItem = { ...item, id: Date.now().toString() };
+  const addSchedule = async (item: Omit<ScheduleItem, 'id' | 'jamDibuat'>) => {
+    const jamDibuat = new Date().toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const newItem: ScheduleItem = { ...item, id: Date.now().toString(), jamDibuat };
     const updated = [newItem, ...schedules];
     setSchedules(updated);
     await AsyncStorage.setItem('@campus_schedules', JSON.stringify(updated));
   };
 
-  const updateSchedule = async (id: string, item: Omit<ScheduleItem, 'id'>) => {
-    const updated = schedules.map((s) => (s.id === id ? { ...item, id } : s));
+  const updateSchedule = async (id: string, item: Omit<ScheduleItem, 'id' | 'jamDibuat'>) => {
+    const existing = schedules.find((s) => s.id === id);
+    const updated = schedules.map((s) =>
+      s.id === id
+        ? {
+            ...item,
+            id,
+            jamDibuat:
+              existing?.jamDibuat ||
+              new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+          }
+        : s
+    );
     setSchedules(updated);
     await AsyncStorage.setItem('@campus_schedules', JSON.stringify(updated));
   };

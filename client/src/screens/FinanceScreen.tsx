@@ -8,9 +8,13 @@ import {
   Modal,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import { useApp, FinanceItem } from '../context/AppContext';
 import { Ionicons } from '@expo/vector-icons';
+
+const KATEGORI_PEMASUKAN = ['Uang Saku', 'Beasiswa', 'Gaji / Freelance', 'Lainnya'];
+const KATEGORI_PENGELUARAN = ['Makanan', 'Transportasi', 'Kuliah', 'Hiburan', 'Kebutuhan', 'Lainnya'];
 
 export default function FinanceScreen() {
   const { finances, addFinance, updateFinance, deleteFinance } = useApp();
@@ -22,12 +26,14 @@ export default function FinanceScreen() {
   // Form State
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
+  const [kategori, setKategori] = useState('');
 
   const openAddModal = (type: 'pemasukan' | 'pengeluaran') => {
     setEditingItem(null);
     setTransactionType(type);
     setTitle('');
     setAmount('');
+    setKategori(type === 'pemasukan' ? KATEGORI_PEMASUKAN[0] : KATEGORI_PENGELUARAN[0]);
     setModalVisible(true);
   };
 
@@ -36,18 +42,23 @@ export default function FinanceScreen() {
     setTransactionType(item.type);
     setTitle(item.title);
     setAmount(item.amount.toString());
+    setKategori(item.kategori || (item.type === 'pemasukan' ? KATEGORI_PEMASUKAN[0] : KATEGORI_PENGELUARAN[0]));
     setModalVisible(true);
   };
 
   const handleSave = async () => {
     const numericAmount = parseInt(amount, 10);
-    if (!title.trim() || isNaN(numericAmount) || numericAmount <= 0) return;
+    if (!title.trim() || isNaN(numericAmount) || numericAmount <= 0) {
+      Alert.alert('Perhatian', 'Keterangan dan nominal jumlah wajib diisi!');
+      return;
+    }
 
     if (editingItem) {
       await updateFinance(editingItem.id, {
         title,
         amount: numericAmount,
         type: transactionType,
+        kategori: kategori || 'Lainnya',
         date: editingItem.date,
       });
     } else {
@@ -55,6 +66,7 @@ export default function FinanceScreen() {
         title,
         amount: numericAmount,
         type: transactionType,
+        kategori: kategori || 'Lainnya',
         date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
       });
     }
@@ -63,10 +75,16 @@ export default function FinanceScreen() {
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini?', [
-      { text: 'Batal', style: 'cancel' },
-      { text: 'Hapus', style: 'destructive', onPress: () => deleteFinance(id) },
-    ]);
+    if (Platform.OS === 'web') {
+      if (window.confirm('Apakah kamu yakin ingin menghapus catatan transaksi ini?')) {
+        deleteFinance(id);
+      }
+    } else {
+      Alert.alert('Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini?', [
+        { text: 'Batal', style: 'cancel' },
+        { text: 'Hapus', style: 'destructive', onPress: () => deleteFinance(id) },
+      ]);
+    }
   };
 
   const totalPemasukan = finances
@@ -85,12 +103,14 @@ export default function FinanceScreen() {
     return true;
   });
 
+  const activeKategoriList = transactionType === 'pemasukan' ? KATEGORI_PEMASUKAN : KATEGORI_PENGELUARAN;
+
   return (
     <SafeAreaView className="flex-1 bg-blue-50/40">
       <View className="px-5 pt-4 pb-3 bg-white border-b border-blue-100">
         <Text className="text-2xl font-bold text-slate-900">Catatan Keuangan</Text>
         <Text className="text-xs text-blue-600 font-medium mt-0.5">
-          Pantau arus kas mahasiswa kamu
+          Pantau arus kas & kategori transaksi
         </Text>
       </View>
 
@@ -186,7 +206,14 @@ export default function FinanceScreen() {
                 </View>
                 <View className="flex-1">
                   <Text className="text-sm font-bold text-slate-900">{item.title}</Text>
-                  <Text className="text-[11px] text-slate-400 mt-0.5">{item.date}</Text>
+                  <View className="flex-row items-center gap-2 mt-0.5">
+                    <Text className="text-[11px] text-slate-400">{item.date}</Text>
+                    {item.kategori ? (
+                      <Text className="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.2 rounded-md">
+                        {item.kategori}
+                      </Text>
+                    ) : null}
+                  </View>
                 </View>
               </View>
 
@@ -220,19 +247,39 @@ export default function FinanceScreen() {
               {editingItem ? 'Edit' : 'Tambah'} {transactionType}
             </Text>
 
+            <Text className="text-xs font-semibold text-slate-600 mb-1">Keterangan Transaksi</Text>
             <TextInput
-              placeholder="Keterangan (cth: Kiriman Ortu / Beli Buku)"
+              placeholder="cth: Kiriman Ortu / Beli Buku"
               value={title}
               onChangeText={setTitle}
               className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
             />
+
+            <Text className="text-xs font-semibold text-slate-600 mb-1">Nominal (Rp)</Text>
             <TextInput
-              placeholder="Jumlah Nominal (cth: 500000)"
+              placeholder="cth: 50000"
               value={amount}
               onChangeText={setAmount}
               keyboardType="numeric"
-              className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-5 text-sm"
+              className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
             />
+
+            <Text className="text-xs font-semibold text-slate-600 mb-1.5">Jenis / Kategori</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-5">
+              {activeKategoriList.map((kat) => (
+                <TouchableOpacity
+                  key={kat}
+                  onPress={() => setKategori(kat)}
+                  className={`px-3 py-1.5 rounded-xl border ${
+                    kategori === kat ? 'bg-blue-600 border-blue-600' : 'bg-white border-blue-200'
+                  }`}
+                >
+                  <Text className={`text-xs font-bold ${kategori === kat ? 'text-white' : 'text-slate-600'}`}>
+                    {kat}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
 
             <View className="flex-row gap-3">
               <TouchableOpacity
