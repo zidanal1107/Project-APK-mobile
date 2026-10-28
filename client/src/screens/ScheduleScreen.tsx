@@ -4,12 +4,13 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Modal,
   TextInput,
   Alert,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useApp, ScheduleItem } from "../context/AppContext";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -246,124 +247,136 @@ export default function ScheduleScreen() {
         )}
       </ScrollView>
 
-      {/* Modal Add / Edit */}
+      {/* Modal Add / Edit Schedule */}
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View className="flex-1 justify-end bg-black/40">
-          <ScrollView className="bg-white rounded-t-3xl border-t border-blue-100 max-h-[85%] p-6">
-            <Text className="text-lg font-bold text-slate-900 mb-4">
-              {editingId ? "Edit Jadwal" : "Tambah Jadwal"} ({tab})
-            </Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
+          <View className="flex-1 justify-end bg-black/40">
+            <View className="bg-white p-6 rounded-t-3xl border-t border-blue-100 max-h-[85%]">
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+              >
+                <Text className="text-lg font-bold text-slate-900 mb-4">
+                  {editingId ? "Edit Jadwal" : "Tambah Jadwal"} ({tab})
+                </Text>
 
-            <Text className="text-xs font-semibold text-slate-600 mb-1">
-              Mata Kuliah / Kegiatan
-            </Text>
-            <TextInput
-              placeholder="cth: Pemrograman Mobile"
-              value={name}
-              onChangeText={setName}
-              className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
-            />
+                <Text className="text-xs font-semibold text-slate-600 mb-1">
+                  Mata Kuliah / Kegiatan
+                </Text>
+                <TextInput
+                  placeholder="cth: Pemrograman Mobile"
+                  value={name}
+                  onChangeText={setName}
+                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
+                />
 
-            <Text className="text-xs font-semibold text-slate-600 mb-1">
-              Hari
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="flex-row gap-2 mb-3"
-            >
-              {HARI_LIST.map((h) => (
-                <TouchableOpacity
-                  key={h}
-                  onPress={() => setHari(h)}
-                  className={`px-3 py-1.5 rounded-xl border ${
-                    hari === h
-                      ? "bg-blue-600 border-blue-600"
-                      : "bg-white border-blue-200"
-                  }`}
+                <Text className="text-xs font-semibold text-slate-600 mb-1">
+                  Hari
+                </Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="flex-row gap-2 mb-3"
                 >
-                  <Text
-                    className={`text-xs font-bold ${hari === h ? "text-white" : "text-slate-600"}`}
+                  {HARI_LIST.map((h) => (
+                    <TouchableOpacity
+                      key={h}
+                      onPress={() => setHari(h)}
+                      className={`px-3 py-1.5 rounded-xl border ${
+                        hari === h
+                          ? "bg-blue-600 border-blue-600"
+                          : "bg-white border-blue-200"
+                      }`}
+                    >
+                      <Text
+                        className={`text-xs font-bold ${hari === h ? "text-white" : "text-slate-600"}`}
+                      >
+                        {h}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+
+                <View className="flex-row gap-2 mb-3">
+                  <View className="flex-1">
+                    <Text className="text-xs font-semibold text-slate-600 mb-1">
+                      Jam Mulai
+                    </Text>
+                    <TextInput
+                      placeholder="08:00"
+                      value={start}
+                      onChangeText={setStart}
+                      className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 text-sm"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-xs font-semibold text-slate-600 mb-1">
+                      Jam Selesai
+                    </Text>
+                    <TextInput
+                      placeholder="09:40"
+                      value={end}
+                      onChangeText={setEnd}
+                      className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 text-sm"
+                    />
+                  </View>
+                </View>
+
+                <Text className="text-xs font-semibold text-slate-600 mb-1">
+                  Kelas
+                </Text>
+                <TextInput
+                  placeholder="cth: TI-3A"
+                  value={itemClass}
+                  onChangeText={setItemClass}
+                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
+                />
+
+                <Text className="text-xs font-semibold text-slate-600 mb-1">
+                  Dosen Pengampu
+                </Text>
+                <TextInput
+                  placeholder="cth: Dr. Budi Santoso"
+                  value={dosen}
+                  onChangeText={setDosen}
+                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
+                />
+
+                <Text className="text-xs font-semibold text-slate-600 mb-1">
+                  Ruangan
+                </Text>
+                <TextInput
+                  placeholder="cth: Lab Komputer 2"
+                  value={ruangan}
+                  onChangeText={setRuangan}
+                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-5 text-sm"
+                />
+
+                <View className="flex-row gap-3 mb-6">
+                  <TouchableOpacity
+                    onPress={() => setModalVisible(false)}
+                    className="flex-1 bg-slate-100 py-3 rounded-xl items-center"
                   >
-                    {h}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <View className="flex-row gap-2 mb-3">
-              <View className="flex-1">
-                <Text className="text-xs font-semibold text-slate-600 mb-1">
-                  Jam Mulai
-                </Text>
-                <TextInput
-                  placeholder="08:00"
-                  value={start}
-                  onChangeText={setStart}
-                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 text-sm"
-                />
-              </View>
-              <View className="flex-1">
-                <Text className="text-xs font-semibold text-slate-600 mb-1">
-                  Jam Selesai
-                </Text>
-                <TextInput
-                  placeholder="09:40"
-                  value={end}
-                  onChangeText={setEnd}
-                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 text-sm"
-                />
-              </View>
+                    <Text className="font-bold text-slate-600 text-sm">
+                      Batal
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    className="flex-1 bg-blue-600 py-3 rounded-xl items-center"
+                  >
+                    <Text className="font-bold text-white text-sm">
+                      {editingId ? "Update" : "Simpan"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
             </View>
-
-            <Text className="text-xs font-semibold text-slate-600 mb-1">
-              Kelas
-            </Text>
-            <TextInput
-              placeholder="cth: TI-3A"
-              value={itemClass}
-              onChangeText={setItemClass}
-              className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
-            />
-
-            <Text className="text-xs font-semibold text-slate-600 mb-1">
-              Dosen Pengampu
-            </Text>
-            <TextInput
-              placeholder="cth: Dr. Budi Santoso"
-              value={dosen}
-              onChangeText={setDosen}
-              className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
-            />
-
-            <Text className="text-xs font-semibold text-slate-600 mb-1">
-              Ruangan
-            </Text>
-            <TextInput
-              placeholder="cth: Lab Komputer 2"
-              value={ruangan}
-              onChangeText={setRuangan}
-              className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-5 text-sm"
-            />
-
-            <View className="flex-row gap-3 mb-6">
-              <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                className="flex-1 bg-slate-100 py-3 rounded-xl items-center"
-              >
-                <Text className="font-bold text-slate-600 text-sm">Batal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleSave}
-                className="flex-1 bg-blue-600 py-3 rounded-xl items-center"
-              >
-                <Text className="font-bold text-white text-sm">
-                  {editingId ? "Update" : "Simpan"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </View>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
