@@ -4,6 +4,8 @@ import coers, { type CorsOptions } from "cors";
 import { env } from "./config/env.js";
 import { db, testConnection } from "./database/connection.js";
 
+import chatRoutes from "./routes/chat.routes.js";
+
 const app = express();
 
 const corsOptions: CorsOptions = {
@@ -18,6 +20,8 @@ app.use(express.json());
 app.get("/", async (req, res) => {
     res.json({ success: true, message: "Server is running!" });
 });
+
+app.use("/api/chat", chatRoutes);
 
 app.get("/api/health/db", async (req, res) => {
     try {
