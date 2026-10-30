@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id BIGINT UNSIGNED PRIMARY KEY,
+    fakultas VARCHAR(150) NOT NULL DEFAULT '',
+    jurusan VARCHAR(150) NOT NULL DEFAULT '',
+    nama_universitas VARCHAR(150) NOT NULL DEFAULT '',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_profile_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
