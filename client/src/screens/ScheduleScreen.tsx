@@ -57,8 +57,8 @@ export default function ScheduleScreen() {
     setHari(item.hari);
     setStart(item.start);
     setEnd(item.end);
-    setItemClass(item.class);
-    setDosen(item.dosen);
+    setItemClass(item.class || "");
+    setDosen(item.dosen || "");
     setRuangan(item.ruangan);
     setModalVisible(true);
   };
@@ -67,33 +67,26 @@ export default function ScheduleScreen() {
     if (!name.trim() || !start.trim() || !end.trim() || !ruangan.trim()) {
       Alert.alert(
         "Perhatian",
-        "Nama, Jam Mulai, Selesai, dan Ruangan wajib diisi!",
+        "Nama, Jam Mulai, Selesai, dan Ruangan/Lokasi wajib diisi!",
       );
       return;
     }
 
+    const payload = {
+      name,
+      hari,
+      start,
+      end,
+      class: tab === "akademik" ? itemClass : "",
+      dosen: tab === "akademik" ? dosen : "",
+      ruangan,
+      type: tab,
+    };
+
     if (editingId) {
-      await updateSchedule(editingId, {
-        name,
-        hari,
-        start,
-        end,
-        class: itemClass,
-        dosen,
-        ruangan,
-        type: tab,
-      });
+      await updateSchedule(editingId, payload);
     } else {
-      await addSchedule({
-        name,
-        hari,
-        start,
-        end,
-        class: itemClass,
-        dosen,
-        ruangan,
-        type: tab,
-      });
+      await addSchedule(payload);
     }
 
     setModalVisible(false);
@@ -122,7 +115,7 @@ export default function ScheduleScreen() {
   const filteredSchedules = schedules.filter((s) => s.type === tab);
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-50/40">
+    <SafeAreaView style={{ flex: 1 }} className="flex-1 bg-blue-50/40">
       {/* Header */}
       <View className="px-5 pt-4 pb-3 bg-white border-b border-blue-100 flex-row justify-between items-center">
         <View>
@@ -186,7 +179,7 @@ export default function ScheduleScreen() {
         {filteredSchedules.length === 0 ? (
           <View className="p-8 items-center justify-center">
             <Text className="text-slate-400 text-sm">
-              Belum ada jadwal tersimpan.
+              Belum ada jadwal {tab} tersimpan.
             </Text>
           </View>
         ) : (
@@ -200,7 +193,7 @@ export default function ScheduleScreen() {
                   <Text className="text-base font-bold text-slate-900">
                     {item.name}
                   </Text>
-                  {item.class ? (
+                  {tab === "akademik" && item.class ? (
                     <Text className="text-xs font-semibold text-blue-600">
                       Kelas: {item.class}
                     </Text>
@@ -225,7 +218,7 @@ export default function ScheduleScreen() {
                 </Text>
               </View>
 
-              {item.dosen ? (
+              {tab === "akademik" && item.dosen ? (
                 <Text className="text-xs text-slate-500 mt-1">
                   👨‍🏫 Dosen: {item.dosen}
                 </Text>
@@ -264,13 +257,17 @@ export default function ScheduleScreen() {
                 </Text>
 
                 <Text className="text-xs font-semibold text-slate-600 mb-1">
-                  Mata Kuliah / Kegiatan
+                  {tab === "akademik" ? "Mata Kuliah" : "Nama Kegiatan"}
                 </Text>
                 <TextInput
-                  placeholder="cth: Pemrograman Mobile"
+                  placeholder={
+                    tab === "akademik"
+                      ? "cth: Pemrograman Mobile"
+                      : "cth: Rapat Ormawa / Futsal"
+                  }
                   value={name}
                   onChangeText={setName}
-                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
+                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm text-slate-900"
                 />
 
                 <Text className="text-xs font-semibold text-slate-600 mb-1">
@@ -292,7 +289,9 @@ export default function ScheduleScreen() {
                       }`}
                     >
                       <Text
-                        className={`text-xs font-bold ${hari === h ? "text-white" : "text-slate-600"}`}
+                        className={`text-xs font-bold ${
+                          hari === h ? "text-white" : "text-slate-600"
+                        }`}
                       >
                         {h}
                       </Text>
@@ -309,7 +308,7 @@ export default function ScheduleScreen() {
                       placeholder="08:00"
                       value={start}
                       onChangeText={setStart}
-                      className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 text-sm"
+                      className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 text-sm text-slate-900"
                     />
                   </View>
                   <View className="flex-1">
@@ -320,39 +319,48 @@ export default function ScheduleScreen() {
                       placeholder="09:40"
                       value={end}
                       onChangeText={setEnd}
-                      className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 text-sm"
+                      className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 text-sm text-slate-900"
                     />
                   </View>
                 </View>
 
-                <Text className="text-xs font-semibold text-slate-600 mb-1">
-                  Kelas
-                </Text>
-                <TextInput
-                  placeholder="cth: TI-3A"
-                  value={itemClass}
-                  onChangeText={setItemClass}
-                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
-                />
+                {/* Input Khusus Akademik */}
+                {tab === "akademik" && (
+                  <>
+                    <Text className="text-xs font-semibold text-slate-600 mb-1">
+                      Kelas
+                    </Text>
+                    <TextInput
+                      placeholder="cth: TI-3A"
+                      value={itemClass}
+                      onChangeText={setItemClass}
+                      className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm text-slate-900"
+                    />
+
+                    <Text className="text-xs font-semibold text-slate-600 mb-1">
+                      Dosen Pengampu
+                    </Text>
+                    <TextInput
+                      placeholder="cth: Dr. Budi Santoso"
+                      value={dosen}
+                      onChangeText={setDosen}
+                      className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm text-slate-900"
+                    />
+                  </>
+                )}
 
                 <Text className="text-xs font-semibold text-slate-600 mb-1">
-                  Dosen Pengampu
+                  {tab === "akademik" ? "Ruangan" : "Lokasi Kegiatan"}
                 </Text>
                 <TextInput
-                  placeholder="cth: Dr. Budi Santoso"
-                  value={dosen}
-                  onChangeText={setDosen}
-                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-3 text-sm"
-                />
-
-                <Text className="text-xs font-semibold text-slate-600 mb-1">
-                  Ruangan
-                </Text>
-                <TextInput
-                  placeholder="cth: Lab Komputer 2"
+                  placeholder={
+                    tab === "akademik"
+                      ? "cth: Lab Komputer 2"
+                      : "cth: Lapangan Utama / Aula"
+                  }
                   value={ruangan}
                   onChangeText={setRuangan}
-                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-5 text-sm"
+                  className="bg-blue-50/60 border border-blue-200 rounded-xl p-3 mb-5 text-sm text-slate-900"
                 />
 
                 <View className="flex-row gap-3 mb-6">

@@ -21,7 +21,8 @@ type ChatMessage = {
 
 export default function ChatbotScreen() {
   const { schedules, finances } = useApp();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef =
+  useRef<React.ComponentRef<typeof ScrollView>>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -76,13 +77,19 @@ export default function ChatbotScreen() {
     // Buat konteks dari data aplikasi yang tersedia.
     const scheduleContext =
       schedules.length === 0
-        ? "Belum ada jadwal kuliah yang tersimpan."
+        ? "Belum ada jadwal yang tersimpan."
         : schedules
             .map(
               (s) =>
-                `- ${s.name}, hari ${s.hari}, pukul ${s.start}-${s.end}, ruangan ${s.ruangan}, dosen ${s.dosen || "-"}`,
+                `- ${s.name}
+                Jenis: ${s.type}
+                Hari: ${s.hari}
+                Waktu: ${s.start} - ${s.end}
+                Kelas: ${s.class || "-"}
+                Dosen: ${s.dosen || "-"}
+                Lokasi: ${s.ruangan}`,
             )
-            .join("\n");
+            .join("\n\n");
 
     const financeContext =
       `Total pemasukan: Rp ${totalPemasukan.toLocaleString("id-ID")}\n` +
@@ -92,10 +99,10 @@ export default function ChatbotScreen() {
         ? "Belum ada transaksi yang tersimpan."
         : "Transaksi terbaru:\n" +
           finances
-            .slice(0, 3)
+            .slice(0, 5)
             .map(
               (f) =>
-                `- ${f.title}, kategori ${f.kategori || "Lainnya"}, jenis ${f.type}, nominal Rp ${f.amount.toLocaleString("id-ID")}`,
+                `- ${f.title}, kategori ${f.kategori || "Lainnya"}, jenis ${f.type}, nominal Rp ${f.amount.toLocaleString("id-ID")}, tanggal ${f.date}`,
             )
             .join("\n"));
 
@@ -131,10 +138,7 @@ ${textToSend}
       const errorMsg: ChatMessage = {
         id: `${Date.now()}-error`,
         sender: "bot",
-        text:
-          "Maaf, saya belum dapat terhubung ke AI.\n\n" +
-          `Detail: ${errorText}\n\n` +
-          "Pastikan backend aktif dan alamat API sudah benar.",
+        text: `Maaf, saya belum dapat terhubung ke AI.\n\nDetail: ${errorText}`,
       };
 
       setMessages((prev) => [...prev, errorMsg]);
@@ -158,11 +162,11 @@ ${textToSend}
 
           <View>
             <Text className="text-base font-bold text-slate-900">
-              Campus AI Assistant
+              My Daily Campus AI
             </Text>
 
             <Text className="text-xs text-blue-600 font-semibold">
-              {isLoading ? "AI sedang berpikir..." : "Gemini AI Assistant"}
+              {isLoading ? "AI sedang berpikir..." : "AI Assistant"}
             </Text>
           </View>
         </View>
