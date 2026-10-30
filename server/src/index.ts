@@ -4,7 +4,7 @@ import coers, { type CorsOptions } from "cors";
 import { env } from "./config/env.js";
 import { db, testConnection } from "./database/connection.js";
 
-import chatRoutes from "./routes/chat.routes.js";
+import chatRoutes from "./modules/chat/chat.routes.js";
 
 const app = express();
 

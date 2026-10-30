@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import {
   generateChatResponse,
   type ChatHistoryItem,
-} from "../services/gemini.service.js";
+} from "./gemini.service.js";
 
 export async function sendChatMessage(
   req: Request,
