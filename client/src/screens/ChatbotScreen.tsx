@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useApp } from "../context/AppContext";
 import { sendChatMessage } from "../services/chatService";
+import { useAuth } from "../context/AuthContext";
 
 type ChatMessage = {
   id: string;
@@ -21,6 +22,10 @@ type ChatMessage = {
 
 export default function ChatbotScreen() {
   const { schedules, finances } = useApp();
+  const { user } = useAuth();
+
+  const displayName = user?.name || "Mahasiswa";
+
   const scrollViewRef =
   useRef<React.ComponentRef<typeof ScrollView>>(null);
 
@@ -28,7 +33,7 @@ export default function ChatbotScreen() {
     {
       id: "1",
       sender: "bot",
-      text: "Halo Zidan! Saya Asisten AI My Daily Campus 🎓. Ada yang bisa saya bantu terkait jadwal kuliah atau ringkasan keuangan kamu?",
+      text: `Halo, ${displayName}! Saya Asisten AI My Daily Campus 🎓. Ada yang bisa saya bantu terkait jadwal kuliah atau ringkasan keuangan kamu?`,
     },
   ]);
 

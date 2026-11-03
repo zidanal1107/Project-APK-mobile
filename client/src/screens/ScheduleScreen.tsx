@@ -113,7 +113,6 @@ export default function ScheduleScreen() {
   };
 
   const filteredSchedules = schedules.filter((s) => s.type === tab);
-
   return (
     <SafeAreaView style={{ flex: 1 }} className="flex-1 bg-blue-50/40">
       {/* Header */}
@@ -137,11 +136,14 @@ export default function ScheduleScreen() {
       {/* Tab Switcher */}
       <View className="p-4 bg-white border-b border-blue-100">
         <View className="flex-row bg-blue-50 p-1 rounded-xl">
+          {/* Tab Akademik */}
           <TouchableOpacity
             onPress={() => setTab("akademik")}
-            className={`flex-1 py-2.5 rounded-lg items-center ${
-              tab === "akademik" ? "bg-white shadow-sm" : ""
-            }`}
+            className="flex-1 py-2.5 rounded-lg items-center"
+            style={{
+              backgroundColor: tab === "akademik" ? "#FFFFFF" : "transparent",
+              elevation: tab === "akademik" ? 2 : 0,
+            }}
           >
             <Text
               className={`text-xs font-bold ${
@@ -153,18 +155,22 @@ export default function ScheduleScreen() {
             </Text>
           </TouchableOpacity>
 
+          {/* Tab Non Akademik */}
           <TouchableOpacity
             onPress={() => setTab("non-akademik")}
-            className={`flex-1 py-2.5 rounded-lg items-center ${
-              tab === "non-akademik" ? "bg-white shadow-sm" : ""
-            }`}
+            className="flex-1 py-2.5 rounded-lg items-center"
+            style={{
+              backgroundColor:
+                tab === "non-akademik" ? "#FFFFFF" : "transparent",
+              elevation: tab === "non-akademik" ? 2 : 0,
+            }}
           >
             <Text
               className={`text-xs font-bold ${
                 tab === "non-akademik" ? "text-blue-600" : "text-slate-500"
               }`}
             >
-              🎨 Non-Akademik (
+              🎯 Non Akademik (
               {schedules.filter((s) => s.type === "non-akademik").length})
             </Text>
           </TouchableOpacity>

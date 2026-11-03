@@ -434,7 +434,7 @@ export default function SettingsModals({
 
             <ScrollView className="max-h-80">
               <Text className="text-sm text-slate-600 leading-6">
-                A Day In Campus merupakan aplikasi untuk membantu
+                My Daily Campus merupakan aplikasi untuk membantu
                 mahasiswa mengelola jadwal perkuliahan dan keuangan
                 personal.
 
