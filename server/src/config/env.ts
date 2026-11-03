@@ -40,4 +40,5 @@ export const env = {
         .split(",")
         .map((origin) => origin.trim())
         .filter(Boolean),
+    jwtSecret: getRequiredEnv("JWT_SECRET"),
 }

@@ -5,6 +5,7 @@ import { env } from "./config/env.js";
 import { db, testConnection } from "./database/connection.js";
 
 import chatRoutes from "./modules/chat/chat.routes.js";
+import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/api/chat", chatRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/api/health/db", async (req, res) => {
     try {
