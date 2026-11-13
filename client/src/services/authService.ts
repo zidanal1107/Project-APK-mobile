@@ -1,5 +1,11 @@
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
+
+import {
+  getItem,
+  setItem,
+  deleteItem,
+} from "./strorage";
+
 import type {
   AuthResponse,
   AuthUser,
@@ -8,6 +14,10 @@ import type {
 } from "../types/auth";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+if (!API_URL) {
+  console.warn("EXPO_PUBLIC_API_URL belum dikonfigurasi.");
+}
 
 const api = axios.create({
   baseURL: API_URL,
@@ -19,33 +29,63 @@ const api = axios.create({
 
 const TOKEN_KEY = "my_daily_campus_token";
 
-export async function register(payload: RegisterPayload): Promise<AuthUser> {
-  const response = await api.post<AuthResponse>("/auth/register", payload);
+// =====================================
+// REGISTER
+// =====================================
+
+export async function register(
+  payload: RegisterPayload,
+): Promise<AuthUser> {
+  const response = await api.post<AuthResponse>(
+    "/auth/register",
+    payload,
+  );
 
   const { user, token } = response.data.data;
 
-  await SecureStore.setItemAsync(TOKEN_KEY, token);
+  await setItem(TOKEN_KEY, token);
 
   return user;
 }
 
-export async function login(payload: LoginPayload): Promise<AuthUser> {
-  const response = await api.post<AuthResponse>("/auth/login", payload);
+// =====================================
+// LOGIN
+// =====================================
+
+export async function login(
+  payload: LoginPayload,
+): Promise<AuthUser> {
+  const response = await api.post<AuthResponse>(
+    "/auth/login",
+    payload,
+  );
 
   const { user, token } = response.data.data;
 
-  await SecureStore.setItemAsync(TOKEN_KEY, token);
+  await setItem(TOKEN_KEY, token);
 
   return user;
 }
+
+// =====================================
+// GET TOKEN
+// =====================================
 
 export async function getToken(): Promise<string | null> {
-  return SecureStore.getItemAsync(TOKEN_KEY);
+  return getItem(TOKEN_KEY);
 }
 
+// =====================================
+// LOGOUT
+// =====================================
+
 export async function logout(): Promise<void> {
-  await SecureStore.deleteItemAsync(TOKEN_KEY);
+  await deleteItem(TOKEN_KEY);
 }
+
+// =====================================
+// GET PROFILE
+// =====================================
 
 export async function getProfile(): Promise<AuthUser> {
   const token = await getToken();
@@ -54,14 +94,16 @@ export async function getProfile(): Promise<AuthUser> {
     throw new Error("TOKEN_NOT_FOUND");
   }
 
-  const response = await api.get<{ success: boolean; data: { user: AuthUser } }>(
-    "/auth/me",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await api.get<{
+    success: boolean;
+    data: {
+      user: AuthUser;
+    };
+  }>("/auth/me", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return response.data.data.user;
 }

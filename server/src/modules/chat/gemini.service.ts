@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { env } from "../../config/env.js";
 
 const ai = new GoogleGenAI({
-    apiKey: env.geminiApiKey,
+  apiKey: env.geminiApiKey,
 });
 
 const MAX_RETRIES = 2;
@@ -16,8 +16,8 @@ async function generateWithRetry(
     } catch (error: unknown) {
       const status =
         typeof error === "object" &&
-        error !== null &&
-        "status" in error
+          error !== null &&
+          "status" in error
           ? error.status
           : undefined;
 
@@ -38,6 +38,9 @@ async function generateWithRetry(
 
 const SYSTEM_INSTRUCTION = `
 Kamu adalah asisten AI untuk aplikasi My Daily Campus.
+Jawab dalam teks biasa (plain text).
+JANGAN gunakan format Markdown: tanpa tanda bintang (*), tanpa **bold**, tanpa # heading, tanpa backtick.
+Untuk daftar, gunakan tanda strip (-) atau angka (1. 2. 3.).
 
 Tugasmu:
 - Membantu mahasiswa mengatur jadwal dan aktivitas kampus.
@@ -49,38 +52,38 @@ Tugasmu:
 `;
 
 export type ChatHistoryItem = {
-    role: "user" | "model";
-    text: string;
+  role: "user" | "model";
+  text: string;
 };
 
 export async function generateChatResponse(
-    message: string,
-    history: ChatHistoryItem[] = [],
+  message: string,
+  history: ChatHistoryItem[] = [],
 ): Promise<string> {
-    const contents = [
-        ...history.map((item) => ({
-            role: item.role,
-            parts: [{ text: item.text }],
-        })),
-        {
-            role: "user" as const,
-            parts: [{ text: message }],
-        },
-    ];
+  const contents = [
+    ...history.map((item) => ({
+      role: item.role,
+      parts: [{ text: item.text }],
+    })),
+    {
+      role: "user" as const,
+      parts: [{ text: message }],
+    },
+  ];
 
-    const response = await generateWithRetry({
-        model: "gemini-3.5-flash-lite",
-        contents,
-        config: {
-            systemInstruction: SYSTEM_INSTRUCTION,
-        },
-    });
+  const response = await generateWithRetry({
+    model: "gemini-3.5-flash-lite",
+    contents,
+    config: {
+      systemInstruction: SYSTEM_INSTRUCTION,
+    },
+  });
 
-    const answer = response.text?.trim();
+  const answer = response.text?.trim();
 
-    if (!answer) {
-        throw new Error("Gemini is not generating a response.");
-    }
+  if (!answer) {
+    throw new Error("Gemini is not generating a response.");
+  }
 
-    return answer;
+  return answer;
 }

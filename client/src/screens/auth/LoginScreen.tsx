@@ -44,9 +44,6 @@ export default function LoginScreen() {
         email: email.trim().toLowerCase(),
         password,
       });
-
-      // AuthContext mengubah status login.
-      // RootNavigation otomatis menampilkan AppNavigator.
     } catch (error: any) {
       const message =
         error?.response?.data?.message ??
@@ -133,7 +130,9 @@ export default function LoginScreen() {
               className={`mt-6 items-center rounded-xl bg-blue-600 py-4 ${
                 loading ? "opacity-70" : ""
               }`}
-              onPress={handleLogin}
+              onPress={() => {
+                console.log("LOGIN PRESSED", email, password);
+                handleLogin()}}
               disabled={loading}
             >
               {loading ? (

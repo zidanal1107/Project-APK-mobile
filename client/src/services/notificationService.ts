@@ -236,6 +236,9 @@ export async function syncAllScheduleNotifications(
   schedules: ScheduleItem[],
   settings: NotificationSettings
 ): Promise<void> {
+  if (Platform.OS === "web") {
+    return;
+  }
   const notifications =
     await Notifications.getAllScheduledNotificationsAsync();
 

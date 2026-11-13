@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,13 +6,21 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
   ActivityIndicator,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useApp } from "../context/AppContext";
 import { sendChatMessage } from "../services/chatService";
 import { useAuth } from "../context/AuthContext";
+
+// Ubah ke true jika layar ini berada di dalam bottom tab navigator
+// (tab bar sudah mengurus safe area bawah, jadi tidak perlu padding tambahan).
+const HAS_TAB_BAR = false;
 
 type ChatMessage = {
   id: string;
@@ -23,11 +31,11 @@ type ChatMessage = {
 export default function ChatbotScreen() {
   const { schedules, finances } = useApp();
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const displayName = user?.name || "Mahasiswa";
 
-  const scrollViewRef =
-  useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const scrollViewRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -39,6 +47,33 @@ export default function ChatbotScreen() {
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  // Lacak status keyboard agar padding bawah input menyesuaikan
+  useEffect(() => {
+    const showEvt =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvt =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvt, () =>
+      setKeyboardVisible(true),
+    );
+    const hideSub = Keyboard.addListener(hideEvt, () =>
+      setKeyboardVisible(false),
+    );
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  // Padding bawah kotak input:
+  // - keyboard terbuka  -> kecil (keyboard sudah menutupi home indicator)
+  // - keyboard tertutup -> ikuti safe area (kecuali ada tab bar)
+  const inputBottomPadding =
+    keyboardVisible || HAS_TAB_BAR ? 12 : Math.max(insets.bottom, 12);
 
   // Perhitungan keuangan dari AppContext
   const totalPemasukan = finances
@@ -62,15 +97,14 @@ export default function ChatbotScreen() {
       text: textToSend,
     };
 
-    // FIX 1: Filter history agar tidak diawali pesan bot/greeting & mengabaikan pesan error
+    // Filter history agar tidak diawali pesan bot/greeting & mengabaikan pesan error
     const history = messages
-      .filter((msg) => !msg.id.includes("error")) // Abaikan pesan error
+      .filter((msg) => !msg.id.includes("error"))
       .map((msg) => ({
         role: msg.sender === "user" ? ("user" as const) : ("model" as const),
         text: msg.text,
       }))
       .filter((msg, index) => {
-        // Hapus elemen pertama jika berupa 'model' (salam pembuka bot)
         if (index === 0 && msg.role === "model") return false;
         return true;
       });
@@ -153,9 +187,15 @@ ${textToSend}
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="flex-1 bg-blue-50/40">
+    // edges={["top"]}: sisi bawah tidak diberi padding oleh SafeAreaView,
+    // sehingga input menempel ke tepi bawah layar.
+    <SafeAreaView
+      edges={["top"]}
+      style={{ flex: 1 }}
+      className="flex-1 bg-blue-50/40"
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
         className="flex-1"
       >
@@ -242,14 +282,18 @@ ${textToSend}
           )}
         </ScrollView>
 
-        {/* Input Box */}
-        <View className="p-3 bg-white border-t border-blue-100 flex-row items-center gap-2">
+        {/* Input Box: menempel di bawah layar */}
+        <View
+          className="px-3 pt-3 bg-white border-t border-blue-100 flex-row items-center gap-2"
+          style={{ paddingBottom: inputBottomPadding }}
+        >
           <TextInput
             value={input}
             onChangeText={setInput}
             placeholder="Tanyakan jadwal atau keuangan..."
             placeholderTextColor="#94A3B8"
             className="flex-1 bg-blue-50/60 border border-blue-200 rounded-xl px-4 py-2.5 text-sm text-slate-900"
+            style={{ maxHeight: 120 }}
             editable={!isLoading}
             multiline
             maxLength={5000}

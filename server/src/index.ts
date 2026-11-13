@@ -1,5 +1,5 @@
 import express from "express";
-import coers, { type CorsOptions } from "cors";
+import cors, { type CorsOptions } from "cors";
 
 import { env } from "./config/env.js";
 import { db, testConnection } from "./database/connection.js";
@@ -15,7 +15,7 @@ const corsOptions: CorsOptions = {
     allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.use(coers(corsOptions));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/", async (req, res) => {

@@ -17,7 +17,7 @@ const WEB_URL = "http://localhost:3000";
 const ANDROID_EMULATOR_URL = "http://10.0.2.2:3000";
 
 // iOS Simulator
-const IOS_SIMULATOR_URL = "http://192.168.43.102:3000";
+const IOS_SIMULATOR_URL = "http://172.16.36.176:3000";
 
 // HP Android / iPhone fisik
 const PHYSICAL_DEVICE_URL = `http://${COMPUTER_IP}:3000`;
